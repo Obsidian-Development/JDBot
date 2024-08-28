@@ -59,7 +59,8 @@ _ADDR_PAIRS = [
 
 
 def _colored_addr_pair(addr1: str, addr2: str) -> str:
-    r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+    r, g, b = random.randint(0, 255), random.randint(
+        0, 255), random.randint(0, 255)
     return f"{addr1} {r:02X}{g:02X}\n{addr2} {b:02X}00"
 
 
@@ -80,7 +81,8 @@ async def post(bot: JDBot, code: str) -> str:
     async with bot.session.post(
         "https://api.senarc.net/paste",
         json=paste_body,
-        headers={"accept": "application/json", "Content-Type": "application/json"},
+        headers={"accept": "application/json",
+                 "Content-Type": "application/json"},
     ) as response:
         json_data: dict = await response.json()
         return json_data.get("url")
@@ -95,13 +97,15 @@ async def get_paste(bot: JDBot, paste_id: str) -> Optional[str]:
 
 
 def groupby(iterable: list[Any], count: int) -> list[list[Any]]:
-    return [iterable[i : i + count] for i in range(0, len(iterable), count)]
+    return [iterable[i: i + count] for i in range(0, len(iterable), count)]
 
 
 def npm_create_embed(data: dict) -> discord.Embed:
     e = discord.Embed(title=f"Package information for **{data.get('name')}**")
-    e.add_field(name="**Latest Version:**", value=f"\n{data.get('latest_version', 'None Provided')}", inline=False)
-    e.add_field(name="**Description:**", value=f"\n{data.get('description', 'None Provided')}", inline=False)
+    e.add_field(name="**Latest Version:**",
+                value=f"\n{data.get('latest_version', 'None Provided')}", inline=False)
+    e.add_field(name="**Description:**",
+                value=f"\n{data.get('description', 'None Provided')}", inline=False)
 
     formatted_author = ""
     authors = data.get("authors", [])
@@ -111,10 +115,13 @@ def npm_create_embed(data: dict) -> discord.Embed:
     else:
         formatted_author += f"Email: {authors.get('email', 'None Provided')}\n{authors['name']}"
 
-    e.add_field(name="**Author:**", value=f"\n{formatted_author}", inline=False)
-    e.add_field(name="**License:**", value=f"\n{data.get('license', 'None Provided')}", inline=False)
+    e.add_field(name="**Author:**",
+                value=f"\n{formatted_author}", inline=False)
+    e.add_field(name="**License:**",
+                value=f"\n{data.get('license', 'None Provided')}", inline=False)
 
-    dependencies = [[lib, min_version] for lib, min_version in data.get("dependencies", {}).items()]
+    dependencies = [[lib, min_version]
+                    for lib, min_version in data.get("dependencies", {}).items()]
     e.add_field(
         name="Dependencies:",
         value=f"\n{tabulate.tabulate(dependencies, ['Library', 'Minimum version'])}",
@@ -149,7 +156,8 @@ def formatter(code: str, use_long_lines: bool = False) -> str:
 
 def linecount() -> str:
     prefix = sys.prefix.replace("\\", "/")
-    to_ignore = (str(prefix.split("/")[-1]), "src") if str(prefix) != str(sys.base_prefix) else "src"
+    to_ignore = (str(prefix.split(
+        "/")[-1]), "src") if str(prefix) != str(sys.base_prefix) else "src"
 
     p = pathlib.Path("./")
     im = cm = cr = fn = cl = ls = fc = 0
@@ -407,7 +415,8 @@ class InvalidationManager:
         self, cache: list[InvalidationConfig], entity_id: int, entity_type: InvalidateType
     ) -> Optional[InvalidationConfig]:
         return next(
-            (config for config in cache if config.entity_id == entity_id and config.entity_type == entity_type), None
+            (config for config in cache if config.entity_id ==
+             entity_id and config.entity_type == entity_type), None
         )
 
 

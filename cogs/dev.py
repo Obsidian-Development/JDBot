@@ -26,7 +26,8 @@ class DevTools(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.TOKEN_RE = re.compile(r"[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{26}\w{1}")
+        self.TOKEN_RE = re.compile(
+            r"[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{26}\w{1}")
         self.pool = self.bot.db
 
     async def cog_load(self):
@@ -36,11 +37,13 @@ class DevTools(commands.Cog):
         self.tio = async_tio.Tio(session=self.bot.session)
 
         self.invalidation_config = [
-            utils.InvalidationConfig(record.entity_id, record.entity_type, self.bot)
+            utils.InvalidationConfig(
+                record.entity_id, record.entity_type, self.bot)
             for record in await self.bot.db.fetch("SELECT * FROM invalidation_config")
         ]
         self.invalidation_opt_out = [
-            utils.InvalidationConfig(record.entity_id, record.entity_type, self.bot)
+            utils.InvalidationConfig(
+                record.entity_id, record.entity_type, self.bot)
             for record in await self.bot.db.fetch("SELECT * FROM invalidation_out")
         ]
 
@@ -72,7 +75,8 @@ class DevTools(commands.Cog):
             color=random.randint(0, 16777215),
             timestamp=ctx.message.created_at,
         )
-        embed.set_author(name=str(ctx.author), icon_url=ctx.author.display_avatar.url)
+        embed.set_author(name=str(ctx.author),
+                         icon_url=ctx.author.display_avatar.url)
         embed.set_image(url="https://i.imgur.com/WPExfNr.gif")
         embed.set_footer(text="This snipper snipes tokens she sees in chat.")
 
@@ -96,7 +100,8 @@ class DevTools(commands.Cog):
         else:
             embed = discord.Embed(color=random.randint(0, 16777215))
             results = results[:10]
-            embed.description = "\n".join(f"[`{result}`]({result.url})" for result in results)
+            embed.description = "\n".join(
+                f"[`{result}`]({result.url})" for result in results)
             reference = utils.reference(ctx.message)
             await ctx.send(embed=embed, reference=reference)
 
@@ -130,15 +135,18 @@ class DevTools(commands.Cog):
         self, interaction: discord.Interaction, current: str
     ) -> list[app_commands.Choice]:
         libraries = dict(self.rtfm_dictionary)
-        all_choices = [app_commands.Choice(name=name, value=link) for name, link in libraries.items()]
-        startswith = [choice for choice in all_choices if choice.name.lower().startswith(current.lower())]
+        all_choices = [app_commands.Choice(
+            name=name, value=link) for name, link in libraries.items()]
+        startswith = [choice for choice in all_choices if choice.name.lower(
+        ).startswith(current.lower())]
         return (startswith or all_choices)[:25]
 
     @rtfm_slash.autocomplete("query")
     async def rtfm_query_autocomplete(
         self, interaction: discord.Interaction, current: str
     ) -> list[app_commands.Choice]:
-        url = interaction.namespace.library or dict(self.rtfm_dictionary)["master"]
+        url = interaction.namespace.library or dict(
+            self.rtfm_dictionary)["master"]
         unfiltered_results = await utils.rtfm(self.bot, url)
         all_choices = [
             app_commands.Choice(name=result.name, value=result.url.replace(url, "")) for result in unfiltered_results
@@ -147,7 +155,8 @@ class DevTools(commands.Cog):
         if not current:
             return all_choices[:25]
 
-        filtered_results = fuzzy.finder(current, unfiltered_results, key=lambda t: t.name)
+        filtered_results = fuzzy.finder(
+            current, unfiltered_results, key=lambda t: t.name)
         return [
             app_commands.Choice(name=result.name, value=result.url.replace(url, "")) for result in filtered_results
         ][:25]
@@ -215,7 +224,8 @@ class DevTools(commands.Cog):
             description=f"Formatted code:\n\n{formatted_code}",
             color=random.randint(0, 16777215),
         )
-        embed.set_footer(text="Make sure you use Python code, otherwise it may not work properly.")
+        embed.set_footer(
+            text="Make sure you use Python code, otherwise it may not work properly.")
         await message.edit(embed=embed)
 
     @commands.command(brief="Grab your profile picture")
@@ -279,7 +289,8 @@ class DevTools(commands.Cog):
 
         view = discord.ui.View()
         view.add_item(
-            discord.ui.Button(label=f"{user.name}'s Normal Invite", url=invite, style=discord.ButtonStyle.link)
+            discord.ui.Button(
+                label=f"{user.name}'s Normal Invite", url=invite, style=discord.ButtonStyle.link)
         )
         view.add_item(
             discord.ui.Button(
@@ -291,7 +302,8 @@ class DevTools(commands.Cog):
 
     @commands.command(brief="Puts the message time as a timestamp")
     async def message_time(self, ctx):
-        embed = discord.Embed(title="Message Time", color=random.randint(0, 16777215), timestamp=ctx.message.created_at)
+        embed = discord.Embed(title="Message Time", color=random.randint(
+            0, 16777215), timestamp=ctx.message.created_at)
         embed.set_footer(text=str(ctx.message.id))
         await ctx.send(content="Message timestamp:", embed=embed)
 
@@ -323,7 +335,8 @@ class DevTools(commands.Cog):
             snowflake = await utils.ObjectPlusConverter().convert(ctx, argument=str(utils.generate_snowflake()))
             await ctx.send("Using current time for snowflake information.")
 
-        embed = discord.Embed(title="❄️ Snowflake Info:", color=discord.Color.blue())
+        embed = discord.Embed(title="❄️ Snowflake Info:",
+                              color=discord.Color.blue())
         embed.add_field(
             name="Created At:",
             value=f"{discord.utils.format_dt(snowflake.created_at, style='D')}\n{discord.utils.format_dt(snowflake.created_at, style='T')}",
@@ -339,9 +352,11 @@ class DevTools(commands.Cog):
     async def fake_token(self, ctx):
         discord_object = discord.Object(utils.generate_snowflake())
 
-        first_bit = base64.b64encode(str(discord_object.id).encode()).decode().rstrip("=")
+        first_bit = base64.b64encode(
+            str(discord_object.id).encode()).decode().rstrip("=")
         timestamp = int(discord_object.created_at.timestamp() - 129384000)
-        second_bit = base64.standard_b64encode(timestamp.to_bytes(4, "big")).decode().rstrip("=")
+        second_bit = base64.standard_b64encode(
+            timestamp.to_bytes(4, "big")).decode().rstrip("=")
         last_bit = secrets.token_urlsafe(20)
 
         embed = discord.Embed(
@@ -351,7 +366,8 @@ class DevTools(commands.Cog):
             f"{discord.utils.format_dt(discord_object.created_at, style='D')}\n"
             f"{discord.utils.format_dt(discord_object.created_at, style='T')}",
         )
-        embed.add_field(name="Generated Token:", value=f"`{first_bit}.{second_bit}.{last_bit}`")
+        embed.add_field(name="Generated Token:",
+                        value=f"`{first_bit}.{second_bit}.{last_bit}`")
         embed.set_thumbnail(url=ctx.author.display_avatar.url)
         embed.set_footer(text=f"Requested by {ctx.author}")
 
@@ -393,10 +409,13 @@ class DevTools(commands.Cog):
             timestamp=ctx.message.created_at,
         )
 
-        embed.add_field(name="Author", value=f"{ctx.author} (ID: {ctx.author.id})", inline=False)
-        embed.add_field(name="Bot", value=f"{user} (ID: {user.id})", inline=False)
+        embed.add_field(
+            name="Author", value=f"{ctx.author} (ID: {ctx.author.id})", inline=False)
+        embed.add_field(
+            name="Bot", value=f"{user} (ID: {user.id})", inline=False)
         embed.set_footer(text=str(ctx.author.id))
-        embed.set_author(name=str(user.id), icon_url=user.display_avatar.with_format("png"))
+        embed.set_author(name=str(user.id),
+                         icon_url=user.display_avatar.with_format("png"))
 
         jdjg = self.bot.get_user(168422909482762240)
         await self.bot.get_channel(852897595869233182).send(content=jdjg.mention, embed=embed)
@@ -469,7 +488,8 @@ class DevTools(commands.Cog):
             title=f"Your code exited with code {output.exit_status}", description=f"{text_returned}", color=242424
         )
 
-        embed.set_author(name=f"{ctx.author}", icon_url=ctx.author.display_avatar.url)
+        embed.set_author(name=f"{ctx.author}",
+                         icon_url=ctx.author.display_avatar.url)
 
         embed.set_footer(text="Powered by Tio.run")
 
