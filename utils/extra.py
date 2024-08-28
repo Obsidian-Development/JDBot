@@ -35,6 +35,11 @@ async def latin_google_tts(bot: JDBot, text: str) -> discord.File:
 
 
 def reference(message: discord.Message) -> Optional[discord.MessageReference]:
+    """
+
+    :param message: discord.Message: 
+
+    """
     if message.reference and isinstance(message.reference.resolved, discord.Message):
         return message.reference.resolved.to_reference()
     return None
@@ -57,11 +62,18 @@ _ADDR_PAIRS = [
 
 
 def _colored_addr_pair(addr1: str, addr2: str) -> str:
+    """
+
+    :param addr1: str: 
+    :param addr2: str: 
+
+    """
     r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
     return f"{addr1} {r:02X}{g:02X}\n{addr2} {b:02X}00"
 
 
 def cc_generate() -> str:
+    """ """
     return "\n".join(_colored_addr_pair(*addrs) for addrs in _ADDR_PAIRS)
 
 
@@ -93,10 +105,21 @@ async def get_paste(bot: JDBot, paste_id: str) -> Optional[str]:
 
 
 def groupby(iterable: list[Any], count: int) -> list[list[Any]]:
+    """
+
+    :param iterable: list[Any]: 
+    :param count: int: 
+
+    """
     return [iterable[i : i + count] for i in range(0, len(iterable), count)]
 
 
 def npm_create_embed(data: dict) -> discord.Embed:
+    """
+
+    :param data: dict: 
+
+    """
     e = discord.Embed(title=f"Package information for **{data.get('name')}**")
     e.add_field(name="**Latest Version:**", value=f"\n{data.get('latest_version', 'None Provided')}", inline=False)
     e.add_field(name="**Description:**", value=f"\n{data.get('description', 'None Provided')}", inline=False)
@@ -126,6 +149,11 @@ def npm_create_embed(data: dict) -> discord.Embed:
 
 
 def get_required_npm(data: dict) -> dict:
+    """
+
+    :param data: dict: 
+
+    """
     latest = data["dist-tags"]["latest"]
     version_data = data["versions"][latest]
 
@@ -141,11 +169,18 @@ def get_required_npm(data: dict) -> dict:
 
 
 def formatter(code: str, use_long_lines: bool = False) -> str:
+    """
+
+    :param code: str: 
+    :param use_long_lines: bool:  (Default value = False)
+
+    """
     mode = black.Mode(line_length=120) if use_long_lines else black.Mode()
     return black.format_str(code, mode=mode)
 
 
 def linecount() -> str:
+    """ """
     prefix = sys.prefix.replace("\\", "/")
     to_ignore = (str(prefix.split("/")[-1]), "src") if str(prefix) != str(sys.base_prefix) else "src"
 
@@ -174,6 +209,7 @@ def linecount() -> str:
 
 
 class RtfmObject(NamedTuple):
+    """ """
     name: str
     url: str
 
@@ -236,6 +272,7 @@ async def asset_converter(ctx, assets):
 
 
 class TemperatureReadings(NamedTuple):
+    """ """
     celsius: float
     fahrenheit: float
     kelvin: float
@@ -243,12 +280,18 @@ class TemperatureReadings(NamedTuple):
 
 
 class Temperature(enum.Enum):
+    """ """
     celsius = "Celsius"
     fahrenheit = "Fahrenheit"
     kelvin = "Kelvin"
     rankine = "Rankine"
 
     def convert_to(self, value: float) -> TemperatureReadings:
+        """
+
+        :param value: float: 
+
+        """
         match self:
             case Temperature.celsius:
                 c = value
@@ -275,6 +318,7 @@ class Temperature(enum.Enum):
 
 
 class SpeedReadings(NamedTuple):
+    """ """
     miles: float
     kilometers: float
     meters: float
@@ -284,6 +328,7 @@ class SpeedReadings(NamedTuple):
 
 
 class Speed(enum.Enum):
+    """ """
     miles = "Miles"
     kilometers = "Kilometers"
     meters = "Meters"
@@ -292,6 +337,11 @@ class Speed(enum.Enum):
     light = "Light Speed"
 
     def convert_to(self, value: float) -> SpeedReadings:
+        """
+
+        :param value: float: 
+
+        """
         match self:
             case Speed.miles:
                 miles = value
@@ -347,6 +397,7 @@ class Speed(enum.Enum):
 
 
 class InvalidateType(enum.IntEnum):
+    """ """
     GLOBAL = 0
     GUILD = 1
     DM = 2
@@ -354,6 +405,7 @@ class InvalidateType(enum.IntEnum):
 
 
 class InvalidationConfig:
+    """ """
     def __init__(self, entity_id: int, entity_type: InvalidateType, bot: "JDBot"):
         self.entity_id = entity_id
         self.entity_type = entity_type
@@ -361,6 +413,7 @@ class InvalidationConfig:
 
     @property
     def entity(self) -> Optional[Union[User, Guild, DMChannel, TextChannel]]:
+        """ """
         match self.entity_type:
             case InvalidateType.GLOBAL:
                 return self.bot.get_user(self.entity_id)
@@ -375,6 +428,7 @@ class InvalidationConfig:
 
 
 class InvalidationManager:
+    """ """
     def __init__(self, bot: "JDBot"):
         self.bot = bot
 
@@ -404,6 +458,13 @@ class InvalidationManager:
     def check_invalidation(
         self, cache: list[InvalidationConfig], entity_id: int, entity_type: InvalidateType
     ) -> Optional[InvalidationConfig]:
+        """
+
+        :param cache: list[InvalidationConfig]: 
+        :param entity_id: int: 
+        :param entity_type: InvalidateType: 
+
+        """
         return next(
             (config for config in cache if config.entity_id == entity_id and config.entity_type == entity_type), None
         )

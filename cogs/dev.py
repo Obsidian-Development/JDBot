@@ -160,6 +160,11 @@ class DevTools(commands.Cog):
         print(f"Error in {interaction.command}: {error}")
 
     def charinfo_converter(self, char: str) -> str:
+        """
+
+        :param char: str: 
+
+        """
         digit = f"{ord(char):x}"
         name = unicodedata.name(char, "Unicode character not found")
         return f"`\\U{digit:>08}`: {name} - {char} \N{EM DASH} <http://www.fileformat.info/info/unicode/char/{digit}>"
