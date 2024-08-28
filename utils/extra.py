@@ -7,24 +7,34 @@ import pathlib
 import random
 import sys
 import zlib
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import Any
+from typing import NamedTuple
+from typing import Optional
+from typing import TYPE_CHECKING
+from typing import Union
 
 import aiohttp
 import black
 import discord
 import tabulate
-import enum
-from typing import Optional, Union
-from discord import User, Guild, DMChannel, TextChannel
+from discord import DMChannel
+from discord import Guild
+from discord import TextChannel
+from discord import User
 
 if TYPE_CHECKING:
     from ..main import JDBot
 
 
-async def google_tts(bot: JDBot, text: str, language: str = "en") -> discord.File:
+async def google_tts(bot: JDBot,
+                     text: str,
+                     language: str = "en") -> discord.File:
     async with bot.session.get(
-        "https://api.jdjgbot.com/api/tts",
-        params={"text": text, "language": language},
+            "https://api.jdjgbot.com/api/tts",
+            params={
+                "text": text,
+                "language": language
+            },
     ) as response:
         mp3_data = await response.read()
 
@@ -37,7 +47,13 @@ async def latin_google_tts(bot: JDBot, text: str) -> discord.File:
 
 
 def reference(message: discord.Message) -> Optional[discord.MessageReference]:
-    if message.reference and isinstance(message.reference.resolved, discord.Message):
+    """
+
+    :param message: discord.Message:
+
+    """
+    if message.reference and isinstance(message.reference.resolved,
+                                        discord.Message):
         return message.reference.resolved.to_reference()
     return None
 
@@ -59,11 +75,20 @@ _ADDR_PAIRS = [
 
 
 def _colored_addr_pair(addr1: str, addr2: str) -> str:
-    r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+    """
+
+    :param addr1: str:
+    :param addr2: str:
+
+    """
+    r, g, b = random.randint(0,
+                             255), random.randint(0,
+                                                  255), random.randint(0, 255)
     return f"{addr1} {r:02X}{g:02X}\n{addr2} {b:02X}00"
 
 
 def cc_generate() -> str:
+    """ """
     return "\n".join(_colored_addr_pair(*addrs) for addrs in _ADDR_PAIRS)
 
 
@@ -78,30 +103,50 @@ async def post(bot: JDBot, code: str) -> str:
     }
 
     async with bot.session.post(
-        "https://api.senarc.net/paste",
-        json=paste_body,
-        headers={"accept": "application/json", "Content-Type": "application/json"},
+            "https://api.senarc.net/paste",
+            json=paste_body,
+            headers={
+                "accept": "application/json",
+                "Content-Type": "application/json"
+            },
     ) as response:
         json_data: dict = await response.json()
         return json_data.get("url")
 
 
 async def get_paste(bot: JDBot, paste_id: str) -> Optional[str]:
-    async with bot.session.get(
-        f"https://api.senarc.net/bin/{paste_id}", headers={"accept": "application/json", "headless": "true"}
-    ) as response:
+    async with bot.session.get(f"https://api.senarc.net/bin/{paste_id}",
+                               headers={
+                                   "accept": "application/json",
+                                   "headless": "true"
+                               }) as response:
         json_data: dict = await response.json()
         return json_data.get("content")
 
 
 def groupby(iterable: list[Any], count: int) -> list[list[Any]]:
-    return [iterable[i : i + count] for i in range(0, len(iterable), count)]
+    """
+
+    :param iterable: list[Any]:
+    :param count: int:
+
+    """
+    return [iterable[i:i + count] for i in range(0, len(iterable), count)]
 
 
 def npm_create_embed(data: dict) -> discord.Embed:
+    """
+
+    :param data: dict:
+
+    """
     e = discord.Embed(title=f"Package information for **{data.get('name')}**")
-    e.add_field(name="**Latest Version:**", value=f"\n{data.get('latest_version', 'None Provided')}", inline=False)
-    e.add_field(name="**Description:**", value=f"\n{data.get('description', 'None Provided')}", inline=False)
+    e.add_field(name="**Latest Version:**",
+                value=f"\n{data.get('latest_version', 'None Provided')}",
+                inline=False)
+    e.add_field(name="**Description:**",
+                value=f"\n{data.get('description', 'None Provided')}",
+                inline=False)
 
     formatted_author = ""
     authors = data.get("authors", [])
@@ -111,13 +156,20 @@ def npm_create_embed(data: dict) -> discord.Embed:
     else:
         formatted_author += f"Email: {authors.get('email', 'None Provided')}\n{authors['name']}"
 
-    e.add_field(name="**Author:**", value=f"\n{formatted_author}", inline=False)
-    e.add_field(name="**License:**", value=f"\n{data.get('license', 'None Provided')}", inline=False)
+    e.add_field(name="**Author:**",
+                value=f"\n{formatted_author}",
+                inline=False)
+    e.add_field(name="**License:**",
+                value=f"\n{data.get('license', 'None Provided')}",
+                inline=False)
 
-    dependencies = [[lib, min_version] for lib, min_version in data.get("dependencies", {}).items()]
+    dependencies = [[
+        lib, min_version
+    ] for lib, min_version in data.get("dependencies", {}).items()]
     e.add_field(
         name="Dependencies:",
-        value=f"\n{tabulate.tabulate(dependencies, ['Library', 'Minimum version'])}",
+        value=
+        f"\n{tabulate.tabulate(dependencies, ['Library', 'Minimum version'])}",
         inline=False,
     )
 
@@ -128,6 +180,11 @@ def npm_create_embed(data: dict) -> discord.Embed:
 
 
 def get_required_npm(data: dict) -> dict:
+    """
+
+    :param data: dict:
+
+    """
     latest = data["dist-tags"]["latest"]
     version_data = data["versions"][latest]
 
@@ -138,18 +195,29 @@ def get_required_npm(data: dict) -> dict:
         "description": version_data["description"],
         "authors": data.get("author", data.get("maintainers")),
         "license": version_data.get("license"),
-        "dependencies": {lib: ver.strip("^") for lib, ver in version_data.get("dependencies", {}).items()},
+        "dependencies": {
+            lib: ver.strip("^")
+            for lib, ver in version_data.get("dependencies", {}).items()
+        },
     }
 
 
 def formatter(code: str, use_long_lines: bool = False) -> str:
+    """
+
+    :param code: str:
+    :param use_long_lines: bool:  (Default value = False)
+
+    """
     mode = black.Mode(line_length=120) if use_long_lines else black.Mode()
     return black.format_str(code, mode=mode)
 
 
 def linecount() -> str:
+    """ """
     prefix = sys.prefix.replace("\\", "/")
-    to_ignore = (str(prefix.split("/")[-1]), "src") if str(prefix) != str(sys.base_prefix) else "src"
+    to_ignore = (str(prefix.split("/")[-1]),
+                 "src") if str(prefix) != str(sys.base_prefix) else "src"
 
     p = pathlib.Path("./")
     im = cm = cr = fn = cl = ls = fc = 0
@@ -176,6 +244,7 @@ def linecount() -> str:
 
 
 class RtfmObject(NamedTuple):
+    """ """
     name: str
     url: str
 
@@ -219,7 +288,8 @@ async def asset_converter(ctx, assets):
     images = []
 
     for attachment in attachments:
-        if attachment.content_type in ("image/png", "image/jpeg", "image/gif", "image/webp"):
+        if attachment.content_type in ("image/png", "image/jpeg", "image/gif",
+                                       "image/webp"):
             images.append(attachment)
 
     for asset in assets:
@@ -228,7 +298,8 @@ async def asset_converter(ctx, assets):
         elif isinstance(asset, (discord.User, discord.Member)):
             images.append(asset.display_avatar)
         elif isinstance(asset, aiohttp.ClientResponse):
-            if asset.content_type in ("image/png", "image/jpeg", "image/gif", "image/webp"):
+            if asset.content_type in ("image/png", "image/jpeg", "image/gif",
+                                      "image/webp"):
                 images.append(asset)
 
     if not images:
@@ -238,6 +309,7 @@ async def asset_converter(ctx, assets):
 
 
 class TemperatureReadings(NamedTuple):
+    """ """
     celsius: float
     fahrenheit: float
     kelvin: float
@@ -245,12 +317,18 @@ class TemperatureReadings(NamedTuple):
 
 
 class Temperature(enum.Enum):
+    """ """
     celsius = "Celsius"
     fahrenheit = "Fahrenheit"
     kelvin = "Kelvin"
     rankine = "Rankine"
 
     def convert_to(self, value: float) -> TemperatureReadings:
+        """
+
+        :param value: float:
+
+        """
         match self:
             case Temperature.celsius:
                 c = value
@@ -273,10 +351,12 @@ class Temperature(enum.Enum):
                 c = (f - 32) * 0.5556
                 k = c + 273.15
 
-        return TemperatureReadings(round(c, 1), round(f, 1), round(k, 1), round(r, 1))
+        return TemperatureReadings(round(c, 1), round(f, 1), round(k, 1),
+                                   round(r, 1))
 
 
 class SpeedReadings(NamedTuple):
+    """ """
     miles: float
     kilometers: float
     meters: float
@@ -286,6 +366,7 @@ class SpeedReadings(NamedTuple):
 
 
 class Speed(enum.Enum):
+    """ """
     miles = "Miles"
     kilometers = "Kilometers"
     meters = "Meters"
@@ -294,6 +375,11 @@ class Speed(enum.Enum):
     light = "Light Speed"
 
     def convert_to(self, value: float) -> SpeedReadings:
+        """
+
+        :param value: float:
+
+        """
         match self:
             case Speed.miles:
                 miles = value
@@ -349,6 +435,7 @@ class Speed(enum.Enum):
 
 
 class InvalidateType(enum.IntEnum):
+    """ """
     GLOBAL = 0
     GUILD = 1
     DM = 2
@@ -356,13 +443,17 @@ class InvalidateType(enum.IntEnum):
 
 
 class InvalidationConfig:
-    def __init__(self, entity_id: int, entity_type: InvalidateType, bot: "JDBot"):
+    """ """
+
+    def __init__(self, entity_id: int, entity_type: InvalidateType,
+                 bot: "JDBot"):
         self.entity_id = entity_id
         self.entity_type = entity_type
         self.bot = bot
 
     @property
     def entity(self) -> Optional[Union[User, Guild, DMChannel, TextChannel]]:
+        """ """
         match self.entity_type:
             case InvalidateType.GLOBAL:
                 return self.bot.get_user(self.entity_id)
@@ -377,38 +468,52 @@ class InvalidationConfig:
 
 
 class InvalidationManager:
+    """ """
+
     def __init__(self, bot: "JDBot"):
         self.bot = bot
 
-    async def add_entity(
-        self, entity_id: int, entity_type: InvalidateType, in_chosen: bool = True
-    ) -> InvalidationConfig:
+    async def add_entity(self,
+                         entity_id: int,
+                         entity_type: InvalidateType,
+                         in_chosen: bool = True) -> InvalidationConfig:
         table = "invalidation_config" if in_chosen else "invalidation_out"
         await self.bot.db.execute(
-            f"INSERT INTO {table} (entity_id, entity_type) VALUES ($1, $2)", entity_id, entity_type.value
-        )
+            f"INSERT INTO {table} (entity_id, entity_type) VALUES ($1, $2)",
+            entity_id, entity_type.value)
         return InvalidationConfig(entity_id, entity_type, self.bot)
 
-    async def verify_entity(
-        self, entity_id: int, entity_type: InvalidateType, in_chosen: bool = True
-    ) -> Optional[dict]:
+    async def verify_entity(self,
+                            entity_id: int,
+                            entity_type: InvalidateType,
+                            in_chosen: bool = True) -> Optional[dict]:
         table = "invalidation_config" if in_chosen else "invalidation_out"
         return await self.bot.db.fetchrow(
-            f"SELECT * FROM {table} WHERE entity_id = $1 AND entity_type = $2", entity_id, entity_type.value
-        )
+            f"SELECT * FROM {table} WHERE entity_id = $1 AND entity_type = $2",
+            entity_id, entity_type.value)
 
-    async def remove_entity(self, entity_id: int, entity_type: InvalidateType, in_chosen: bool = True) -> None:
+    async def remove_entity(self,
+                            entity_id: int,
+                            entity_type: InvalidateType,
+                            in_chosen: bool = True) -> None:
         table = "invalidation_config" if in_chosen else "invalidation_out"
         await self.bot.db.execute(
-            f"DELETE FROM {table} WHERE entity_id = $1 AND entity_type = $2", entity_id, entity_type.value
-        )
+            f"DELETE FROM {table} WHERE entity_id = $1 AND entity_type = $2",
+            entity_id, entity_type.value)
 
     def check_invalidation(
-        self, cache: list[InvalidationConfig], entity_id: int, entity_type: InvalidateType
-    ) -> Optional[InvalidationConfig]:
-        return next(
-            (config for config in cache if config.entity_id == entity_id and config.entity_type == entity_type), None
-        )
+            self, cache: list[InvalidationConfig], entity_id: int,
+            entity_type: InvalidateType) -> Optional[InvalidationConfig]:
+        """
+
+        :param cache: list[InvalidationConfig]:
+        :param entity_id: int:
+        :param entity_type: InvalidateType:
+
+        """
+        return next((config
+                     for config in cache if config.entity_id == entity_id
+                     and config.entity_type == entity_type), None)
 
 
 # Usage example:
