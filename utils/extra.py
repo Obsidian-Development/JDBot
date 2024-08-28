@@ -7,15 +7,13 @@ import pathlib
 import random
 import sys
 import zlib
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional, Union
 
 import aiohttp
 import black
 import discord
 import tabulate
-import enum
-from typing import Optional, Union
-from discord import User, Guild, DMChannel, TextChannel
+from discord import DMChannel, Guild, TextChannel, User
 
 if TYPE_CHECKING:
     from ..main import JDBot
