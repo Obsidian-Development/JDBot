@@ -44,7 +44,7 @@ async def latin_google_tts(bot: JDBot, text: str) -> discord.File:
 def reference(message: discord.Message) -> Optional[discord.MessageReference]:
     """
 
-    :param message: discord.Message: 
+    :param message: discord.Message:
 
     """
     if message.reference and isinstance(message.reference.resolved, discord.Message):
@@ -71,8 +71,8 @@ _ADDR_PAIRS = [
 def _colored_addr_pair(addr1: str, addr2: str) -> str:
     """
 
-    :param addr1: str: 
-    :param addr2: str: 
+    :param addr1: str:
+    :param addr2: str:
 
     """
     r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
@@ -114,8 +114,8 @@ async def get_paste(bot: JDBot, paste_id: str) -> Optional[str]:
 def groupby(iterable: list[Any], count: int) -> list[list[Any]]:
     """
 
-    :param iterable: list[Any]: 
-    :param count: int: 
+    :param iterable: list[Any]:
+    :param count: int:
 
     """
     return [iterable[i : i + count] for i in range(0, len(iterable), count)]
@@ -124,7 +124,7 @@ def groupby(iterable: list[Any], count: int) -> list[list[Any]]:
 def npm_create_embed(data: dict) -> discord.Embed:
     """
 
-    :param data: dict: 
+    :param data: dict:
 
     """
     e = discord.Embed(title=f"Package information for **{data.get('name')}**")
@@ -158,7 +158,7 @@ def npm_create_embed(data: dict) -> discord.Embed:
 def get_required_npm(data: dict) -> dict:
     """
 
-    :param data: dict: 
+    :param data: dict:
 
     """
     latest = data["dist-tags"]["latest"]
@@ -178,7 +178,7 @@ def get_required_npm(data: dict) -> dict:
 def formatter(code: str, use_long_lines: bool = False) -> str:
     """
 
-    :param code: str: 
+    :param code: str:
     :param use_long_lines: bool:  (Default value = False)
 
     """
@@ -296,7 +296,7 @@ class Temperature(enum.Enum):
     def convert_to(self, value: float) -> TemperatureReadings:
         """
 
-        :param value: float: 
+        :param value: float:
 
         """
         match self:
@@ -346,7 +346,7 @@ class Speed(enum.Enum):
     def convert_to(self, value: float) -> SpeedReadings:
         """
 
-        :param value: float: 
+        :param value: float:
 
         """
         match self:
@@ -467,9 +467,9 @@ class InvalidationManager:
     ) -> Optional[InvalidationConfig]:
         """
 
-        :param cache: list[InvalidationConfig]: 
-        :param entity_id: int: 
-        :param entity_type: InvalidateType: 
+        :param cache: list[InvalidationConfig]:
+        :param entity_id: int:
+        :param entity_type: InvalidateType:
 
         """
         return next(

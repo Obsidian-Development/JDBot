@@ -162,7 +162,7 @@ class DevTools(commands.Cog):
     def charinfo_converter(self, char: str) -> str:
         """
 
-        :param char: str: 
+        :param char: str:
 
         """
         digit = f"{ord(char):x}"
