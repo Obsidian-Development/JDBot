@@ -7,13 +7,20 @@ import pathlib
 import random
 import sys
 import zlib
-from typing import TYPE_CHECKING, Any, NamedTuple, Optional, Union
+from typing import Any
+from typing import NamedTuple
+from typing import Optional
+from typing import TYPE_CHECKING
+from typing import Union
 
 import aiohttp
 import black
 import discord
 import tabulate
-from discord import DMChannel, Guild, TextChannel, User
+from discord import DMChannel
+from discord import Guild
+from discord import TextChannel
+from discord import User
 
 if TYPE_CHECKING:
     from ..main import JDBot
