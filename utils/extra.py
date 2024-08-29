@@ -191,7 +191,20 @@ async def rtfm(bot: JDBot, url: str) -> list[RtfmObject]:
     header_lines = [line for line in lines[:10] if not line.startswith(b"#")]
     content_lines = lines[10:]
 
-    full_data = zlib.decompress(b"\n".join(header_lines + content_lines))
+    try:
+        full_data = zlib.decompress(b"\n".join(header_lines + content_lines))
+    except zlib.error:
+        # If decompression fails, try to skip the first few lines
+        for i in range(len(lines)):
+            try:
+                full_data = zlib.decompress(b"\n".join(lines[i:]))
+                break
+            except zlib.error:
+                continue
+        else:
+            # If all attempts fail, raise an exception
+            raise ValueError("Unable to decompress data")
+
     normal_data = full_data.decode()
     new_list = normal_data.split("\n")
 
@@ -207,6 +220,7 @@ async def rtfm(bot: JDBot, url: str) -> list[RtfmObject]:
             continue
 
     return results
+
 
 
 async def asset_converter(ctx, assets):
