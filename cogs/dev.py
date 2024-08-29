@@ -246,7 +246,7 @@ class DevTools(commands.Cog):
         embed = discord.Embed(
             title=f"{pypi_data.get('name', 'N/A')} {pypi_data.get('version', 'N/A')}",
             url=pypi_data.get("release_url", "https://pypi.org"),
-            description=pypi_data.get("summary", "No summary provided"),
+            description=pypi_data.get("description", "Nothing provided"),
             color=random.randint(0, 16777215),
         )
 
